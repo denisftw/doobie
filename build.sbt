@@ -6,9 +6,10 @@ import OsgiKeys._
 enablePlugins(CrossPerProjectPlugin)
 
 lazy val buildSettings = Seq(
-  organization := "org.tpolecat",
+  organization := "com.appliedscala",
   licenses ++= Seq(("MIT", url("http://opensource.org/licenses/MIT"))),
-  scalaVersion := "2.11.8"
+  scalaVersion := "2.11.8",
+  version := "0.3.1-DM1"
 )
 
 lazy val scalazCrossSettings = Seq(
@@ -44,7 +45,13 @@ lazy val commonSettings = Seq(
     addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.8.0")
 )
 
-lazy val publishSettings = osgiSettings ++ Seq(
+lazy val publishSettingsBintray = Seq(
+  publishMavenStyle := true,
+  // repository in bintray := "maven",
+  bintrayOrganization in bintray := Some("applied-scala")
+)
+
+lazy val publishSettingsOriginal = osgiSettings ++ Seq(
   exportPackage := Seq("doobie.*"),
   privatePackage := Seq(),
   dynamicImportPackage := Seq("*"),
@@ -165,9 +172,9 @@ lazy val ctut = taskKey[Unit]("Copy tut output to blog repo nearby.")
 /// CORE
 ///
 
-def coreSettings(mod: String) = 
-  doobieSettings  ++ 
-  publishSettings ++ Seq(
+def coreSettings(mod: String) =
+  doobieSettings  ++
+  publishSettingsBintray ++ Seq(
     name := "doobie-" + mod,
     description := "Pure functional JDBC layer for Scala.",
     libraryDependencies ++= Seq(
@@ -249,7 +256,7 @@ lazy val example_cats = project.in(file("modules-cats/example"))
 
 def postgresSettings(mod: String): Seq[Setting[_]] =
   doobieSettings  ++
-  publishSettings ++ Seq(
+  publishSettingsBintray ++ Seq(
     name  := "doobie-" + mod,
     description := "Postgres support for doobie.",
     libraryDependencies ++= Seq(
@@ -290,7 +297,7 @@ lazy val postgres_cats = project.in(file("modules-cats/postgres"))
 
 def h2Settings(mod: String): Seq[Setting[_]] =
   doobieSettings  ++
-  publishSettings ++ Seq(
+  publishSettingsBintray ++ Seq(
     name  := "doobie-" + mod,
     description := "H2 support for doobie.",
     libraryDependencies += "com.h2database" % "h2"  % "1.3.170"
@@ -318,8 +325,8 @@ lazy val h2_cats = project.in(file("modules-cats/h2"))
 ///
 
 def hikariSettings(mod: String): Seq[Setting[_]] =
-  doobieSettings  ++ 
-  publishSettings ++ Seq(
+  doobieSettings  ++
+  publishSettingsBintray ++ Seq(
     name := "doobie-" + mod,
     description := "Hikari support for doobie.",
     libraryDependencies += "com.zaxxer" % "HikariCP-java6" % "2.2.5"
@@ -347,8 +354,8 @@ lazy val hikari_cats = project.in(file("modules-cats/hikari"))
 ///
 
 def specs2Settings(mod: String): Seq[Setting[_]] =
-  doobieSettings  ++ 
-  publishSettings ++ Seq(
+  doobieSettings  ++
+  publishSettingsBintray ++ Seq(
     name := "doobie-contrib-specs2",
     description := "Specs2 support for doobie.",
     libraryDependencies += "org.specs2" %% "specs2-core" % "3.8.4"
@@ -395,7 +402,7 @@ lazy val bench_cats = project.in(file("modules-cats/bench"))
 def docsSettings(token: String, tokens: String*): Seq[Setting[_]] =
   doobieSettings          ++
   noPublishSettings       ++
-  tutSettings             ++ 
+  tutSettings             ++
   docSkipScala212Settings ++ Seq(
     ctut := {
       val src = crossTarget.value / "tut"
